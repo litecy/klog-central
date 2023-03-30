@@ -1,0 +1,27 @@
+# permissions for end users to view logcollects.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: logcollect-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: klog-central
+    app.kubernetes.io/part-of: klog-central
+    app.kubernetes.io/managed-by: kustomize
+  name: logcollect-viewer-role
+rules:
+- apiGroups:
+  - klog.uiey.vip
+  resources:
+  - logcollects
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - klog.uiey.vip
+  resources:
+  - logcollects/status
+  verbs:
+  - get

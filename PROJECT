@@ -6,4 +6,14 @@ plugins:
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: klog-central
 repo: github.com/litecy/klog-central
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: uiey.vip
+  group: klog
+  kind: LogCollect
+  path: github.com/litecy/klog-central/api/v1alpha1
+  version: v1alpha1
 version: "3"

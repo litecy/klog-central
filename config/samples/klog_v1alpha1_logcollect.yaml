@@ -1,0 +1,12 @@
+apiVersion: klog.uiey.vip/v1alpha1
+kind: LogCollect
+metadata:
+  labels:
+    app.kubernetes.io/name: logcollect
+    app.kubernetes.io/instance: logcollect-sample
+    app.kubernetes.io/part-of: klog-central
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: klog-central
+  name: logcollect-sample
+spec:
+  # TODO(user): Add fields here
