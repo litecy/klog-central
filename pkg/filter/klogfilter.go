@@ -11,21 +11,21 @@ import (
 )
 
 const (
-	AnnotationKlogCentralLogConfigKey = "klc.klog.uiey.vip/logs-config."
+	AnnotationKLogCentralLogConfigKey = "klc.klog.uiey.vip/logs-config."
 
-	AnnotationKlogCentralLogConfigKeyData = "klc.klog.uiey.vip/logs-config-data."
+	AnnotationKLogCentralLogConfigKeyData = "klc.klog.uiey.vip/logs-config-data."
 )
 
 func CheckKLCConfig(ctx context.Context, pod v1.Pod) (*entity.ConfigItems, error) {
 	logger := log.FromContext(ctx)
 	configs := make(entity.ConfigItems, 0)
 	for k, v := range pod.Annotations {
-		if strings.HasPrefix(k, AnnotationKlogCentralLogConfigKey) {
+		if strings.HasPrefix(k, AnnotationKLogCentralLogConfigKey) {
 			// get config from annotation
 
 			data := v
 
-			if strings.HasPrefix(k, AnnotationKlogCentralLogConfigKeyData) {
+			if strings.HasPrefix(k, AnnotationKLogCentralLogConfigKeyData) {
 				// config is BASE64, try to decode first
 				dec, errD := base64.StdEncoding.DecodeString(data)
 				if errD != nil {
