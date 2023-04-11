@@ -1,6 +1,9 @@
 # klog-central
 klog-central is an awesome Kubernetes centralized logging system. With klog-central you can collect logs from kubernetes with a small cost of compute resources and send them to your centralized log system such as kafka, elasticsearch, graylog2, awsog and etc. klog-central can collect not only kubernetes stdout but also log file that inside docker containers. Rewritten log-pilot with operator-sdk for better working with kubernetes
 
+
+`current under development`
+
 ## Description
 // TODO(user): An in-depth paragraph about your project and overview of use
 

@@ -66,6 +66,25 @@ spec:
         # seccompProfile:
         #   type: RuntimeDefault
       containers:
+      - image: elastic/filebeat:8.2.0
+        name: filebeat
+        volumeMounts:
+          - name: host
+            mountPath: /host
+          - name: log
+            mountPath: /var/log/filebeat
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - "ALL"
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
       - command:
         - /manager
         args:
@@ -100,3 +119,9 @@ spec:
             memory: 64Mi
       serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10
+      volumes:
+        - name: host
+          hostPath:
+            path: /
+        - name: log
+          emptyDir: {}
