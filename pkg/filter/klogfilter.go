@@ -7,6 +7,7 @@ import (
 	"github.com/litecy/klog-central/pkg/entity"
 	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sort"
 	"strings"
 )
 
@@ -19,11 +20,24 @@ const (
 func CheckKLCConfig(ctx context.Context, pod v1.Pod) (*entity.ConfigItems, error) {
 	logger := log.FromContext(ctx)
 	configs := make(entity.ConfigItems, 0)
-	for k, v := range pod.Annotations {
-		if strings.HasPrefix(k, AnnotationKLogCentralLogConfigKey) {
+
+	var keys = make([]string, 0)
+	for k, _ := range pod.Annotations {
+		if strings.HasPrefix(k, AnnotationKLogCentralLogConfigKey) || strings.HasPrefix(k, AnnotationKLogCentralLogConfigKeyData) {
+			// get config from annotation
+			keys = append(keys, k)
+		}
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		return strings.Compare(keys[i], keys[j]) > 0
+	})
+
+	for _, k := range keys {
+		if strings.HasPrefix(k, AnnotationKLogCentralLogConfigKey) || strings.HasPrefix(k, AnnotationKLogCentralLogConfigKeyData) {
 			// get config from annotation
 
-			data := v
+			data := pod.Annotations[k]
 
 			if strings.HasPrefix(k, AnnotationKLogCentralLogConfigKeyData) {
 				// config is BASE64, try to decode first
@@ -40,7 +54,8 @@ func CheckKLCConfig(ctx context.Context, pod v1.Pod) (*entity.ConfigItems, error
 			errUn := json.Unmarshal([]byte(data), &item)
 			if errUn != nil {
 				logger.Error(errUn, "parse json failed", "pod", pod.Name, "key", k, "value", data)
-				continue
+				// continue
+				return nil, errUn
 			}
 			configs = append(configs, item)
 		}

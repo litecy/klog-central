@@ -17,7 +17,7 @@ func TestCheckKLCConfig(t *testing.T) {
 			Annotations: map[string]string{
 				"klc.klog.uiey.vip/logs-config.1":      `{"format":"json","type":"file","path":"/var/log/app.log","name":"app.log"}`,
 				"klc.klog.uiey.vip/logs-config.2":      `{"format":"regexp","type":"stdout","path":"stdout","name":"stdout"}`,
-				"klc.klog.uiey.vip/logs-config-data.3": `eyJmb3JtYXQiOiAiandzb24iLCAidHlwZSI6ICJmaWxlIiwgInBhdGgiOiAiL3Zhci9sb2cvc3RhdHVzLmNvbnRyb2wiLCAibmFtZSI6ICJzdGF0dXMiIH0=`,
+				"klc.klog.uiey.vip/logs-config-data.3": `eyJmb3JtYXQiOiAianNvbiIsICJ0eXBlIjogImZpbGUiLCAicGF0aCI6ICIvdmFyL2xvZy9zdGF0dXMuY29udHJvbCIsICJuYW1lIjogInN0YXR1cyIgfQ==`,
 			},
 		},
 	}
@@ -32,7 +32,7 @@ func TestCheckKLCConfig(t *testing.T) {
 	expectedConfigs := entity.ConfigItems{
 		entity.ConfigItem{Format: "json", Type: "file", Path: "/var/log/app.log", Name: "app.log"},
 		entity.ConfigItem{Format: "regexp", Type: "stdout", Path: "stdout", Name: "stdout"},
-		entity.ConfigItem{Format: "json", Type: "file", Path: "/var/log/status.controller", Name: "status"},
+		entity.ConfigItem{Format: "json", Type: "file", Path: "/var/log/status.control", Name: "status"},
 	}
 	if len(*configs) != len(expectedConfigs) {
 		t.Errorf("unexpected number of configs: got %d, want %d", len(*configs), len(expectedConfigs))
