@@ -1,4 +1,4 @@
-apiVersion: klog.uiey.vip/v1alpha1
+apiVersion: klog.vibly.vip/v1alpha1
 kind: LogCollect
 metadata:
   labels:

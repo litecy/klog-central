@@ -2,7 +2,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: logcollects.klog.uiey.vip
+  name: logcollects.klog.vibly.vip
 spec:
   conversion:
     strategy: Webhook

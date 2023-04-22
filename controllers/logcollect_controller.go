@@ -33,9 +33,9 @@ type LogCollectReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=klog.uiey.vip,resources=logcollects,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=klog.uiey.vip,resources=logcollects/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=klog.uiey.vip,resources=logcollects/finalizers,verbs=update
+//+kubebuilder:rbac:groups=klog.vibly.vip,resources=logcollects,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=klog.vibly.vip,resources=logcollects/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=klog.vibly.vip,resources=logcollects/finalizers,verbs=update
 //+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch;
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to

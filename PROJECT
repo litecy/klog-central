@@ -1,4 +1,4 @@
-domain: uiey.vip
+domain: vibly.vip
 layout:
 - go.kubebuilder.io/v3
 plugins:
@@ -11,7 +11,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: uiey.vip
+  domain: vibly.vip
   group: klog
   kind: LogCollect
   path: github.com/litecy/klog-central/api/v1alpha1

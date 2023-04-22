@@ -12,7 +12,7 @@ metadata:
   name: logcollect-editor-role
 rules:
 - apiGroups:
-  - klog.uiey.vip
+  - klog.vibly.vip
   resources:
   - logcollects
   verbs:
@@ -24,7 +24,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - klog.uiey.vip
+  - klog.vibly.vip
   resources:
   - logcollects/status
   verbs:

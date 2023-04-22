@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: log-sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-sample
+  template:
+    metadata:
+      annotations:
+        "klc.klog.vibly.vip/logs-config.1": '{"format":"json","type":"file","path":"/app/logs/main.log","name":"app.log"}'
+        "klc.klog.vibly.vip/logs-config.2": '{"format":"containerd","type":"stdout","path":"stdout","name":"app.stdout"}'
+      labels:
+        app: log-sample
+    spec:
+      containers:
+        - name: log-sample
+          image: litecy/klog-central-sample:v0.0.1
+          command: [ "/bin/sample" ]
+          args: [ "--log=/app/logs/main.log" ]
+          volumeMounts:
+            - name: log-dir
+              mountPath: /app/logs
+      volumes:
+        - name: log-dir
+          emptyDir: {}

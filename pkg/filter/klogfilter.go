@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	AnnotationKLogCentralLogConfigKey = "klc.klog.uiey.vip/logs-config."
+	AnnotationKLogCentralLogConfigKey = "klc.klog.vibly.vip/logs-config."
 
-	AnnotationKLogCentralLogConfigKeyData = "klc.klog.uiey.vip/logs-config-data."
+	AnnotationKLogCentralLogConfigKeyData = "klc.klog.vibly.vip/logs-config-data."
 )
 
 func CheckKLCConfig(ctx context.Context, pod v1.Pod) (*entity.ConfigItems, error) {
