@@ -15,8 +15,8 @@ func TestCheckKLCConfig(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "test-pod",
 			Annotations: map[string]string{
-				"klc.klog.vibly.vip/logs-config.1":      `{"format":"json","type":"file","path":"/var/log/app.log","name":"app.log"}`,
-				"klc.klog.vibly.vip/logs-config.2":      `{"format":"regexp","type":"stdout","path":"stdout","name":"stdout"}`,
+				"klc.klog.vibly.vip/logs-config.1.a":    `{"format":"json","type":"file","path":"/var/log/app.log","name":"app.log"}`,
+				"klc.klog.vibly.vip/logs-config.1.b":    `{"format":"regexp","type":"stdout","path":"stdout","name":"stdout"}`,
 				"klc.klog.vibly.vip/logs-config-data.3": `eyJmb3JtYXQiOiAianNvbiIsICJ0eXBlIjogImZpbGUiLCAicGF0aCI6ICIvdmFyL2xvZy9zdGF0dXMuY29udHJvbCIsICJuYW1lIjogInN0YXR1cyIgfQ==`,
 			},
 		},
@@ -30,8 +30,8 @@ func TestCheckKLCConfig(t *testing.T) {
 
 	// check if the parsed configs match the expected ones
 	expectedConfigs := entity.ConfigItems{
-		entity.ConfigItem{Format: "regexp", Type: "stdout", Path: "stdout", Name: "stdout"},
-		entity.ConfigItem{Format: "json", Type: "file", Path: "/var/log/app.log", Name: "app.log"},
+		entity.ConfigItem{Format: "json", Type: "file", Path: "/var/log/app.log", Name: "app.log", Container: "a"},
+		entity.ConfigItem{Format: "regexp", Type: "stdout", Path: "stdout", Name: "stdout", Container: "b"},
 		entity.ConfigItem{Format: "json", Type: "file", Path: "/var/log/status.control", Name: "status"},
 	}
 	if len(*configs) != len(expectedConfigs) {

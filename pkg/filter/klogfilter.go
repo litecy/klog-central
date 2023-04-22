@@ -8,6 +8,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -17,48 +18,89 @@ const (
 	AnnotationKLogCentralLogConfigKeyData = "klc.klog.vibly.vip/logs-config-data."
 )
 
+type AnnoKey struct {
+	Key       string
+	Prefix    string
+	Index     int
+	Container string
+}
+
+func parseAnnoKeySection(key string) *AnnoKey {
+	annoKey := &AnnoKey{
+		Key:       key,
+		Prefix:    "",
+		Index:     0,
+		Container: "",
+	}
+
+	prefix := ""
+	if strings.HasPrefix(key, AnnotationKLogCentralLogConfigKey) {
+		prefix = AnnotationKLogCentralLogConfigKey
+	} else if strings.HasPrefix(key, AnnotationKLogCentralLogConfigKeyData) {
+		prefix = AnnotationKLogCentralLogConfigKeyData
+	} else {
+		return nil
+	}
+
+	annoKey.Prefix = prefix
+
+	keyData := strings.Replace(key, prefix, "", 1)
+	keyDataSec := strings.SplitN(keyData, ".", 2)
+	if len(keyDataSec) >= 1 {
+		annoKey.Index, _ = strconv.Atoi(keyDataSec[0])
+	}
+	if len(keyDataSec) >= 2 {
+		annoKey.Container = keyDataSec[1]
+	}
+	return annoKey
+}
+
 func CheckKLCConfig(ctx context.Context, pod v1.Pod) (*entity.ConfigItems, error) {
 	logger := log.FromContext(ctx)
 	configs := make(entity.ConfigItems, 0)
 
-	var keys = make([]string, 0)
+	var keys = make([]*AnnoKey, 0)
 	for k, _ := range pod.Annotations {
-		if strings.HasPrefix(k, AnnotationKLogCentralLogConfigKey) || strings.HasPrefix(k, AnnotationKLogCentralLogConfigKeyData) {
-			// get config from annotation
-			keys = append(keys, k)
+		sec := parseAnnoKeySection(k)
+		if sec != nil {
+			keys = append(keys, sec)
 		}
 	}
 
 	sort.Slice(keys, func(i, j int) bool {
-		return strings.Compare(keys[i], keys[j]) > 0
+		if keys[i].Index == keys[j].Index {
+			return strings.Compare(keys[i].Container, keys[j].Container) < 0
+		}
+		return keys[i].Index < keys[j].Index
 	})
 
 	for _, k := range keys {
-		if strings.HasPrefix(k, AnnotationKLogCentralLogConfigKey) || strings.HasPrefix(k, AnnotationKLogCentralLogConfigKeyData) {
-			// get config from annotation
+		// get config from annotation
 
-			data := pod.Annotations[k]
+		data := pod.Annotations[k.Key]
 
-			if strings.HasPrefix(k, AnnotationKLogCentralLogConfigKeyData) {
-				// config is BASE64, try to decode first
-				dec, errD := base64.StdEncoding.DecodeString(data)
-				if errD != nil {
-					logger.Error(errD, "decode failed", "pod", pod.Name, "key", k, "value", data)
-					continue
-				}
-
-				data = string(dec)
+		if k.Prefix == AnnotationKLogCentralLogConfigKeyData {
+			// config is BASE64, try to decode first
+			dec, errD := base64.StdEncoding.DecodeString(data)
+			if errD != nil {
+				logger.Error(errD, "decode failed", "pod", pod.Name, "key", k, "value", data)
+				continue
 			}
 
-			var item entity.ConfigItem
-			errUn := json.Unmarshal([]byte(data), &item)
-			if errUn != nil {
-				logger.Error(errUn, "parse json failed", "pod", pod.Name, "key", k, "value", data)
-				// continue
-				return nil, errUn
-			}
-			configs = append(configs, item)
+			data = string(dec)
 		}
+
+		var item entity.ConfigItem
+		errUn := json.Unmarshal([]byte(data), &item)
+		if errUn != nil {
+			logger.Error(errUn, "parse json failed", "pod", pod.Name, "key", k, "value", data)
+			// continue
+			return nil, errUn
+		}
+
+		item.Container = k.Container
+
+		configs = append(configs, item)
 	}
 
 	return &configs, nil

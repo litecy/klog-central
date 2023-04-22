@@ -11,7 +11,7 @@ spec:
   template:
     metadata:
       annotations:
-        "klc.klog.vibly.vip/logs-config.1": '{"format":"json","type":"file","path":"/app/logs/main.log","name":"app.log"}'
+        "klc.klog.vibly.vip/logs-config.1.log-sample": '{"format":"json","type":"file","path":"/app/logs/main.log","name":"app.log"}'
         "klc.klog.vibly.vip/logs-config.2": '{"format":"containerd","type":"stdout","path":"stdout","name":"app.stdout"}'
       labels:
         app: log-sample
