@@ -9,3 +9,11 @@ type ConfigItem struct {
 }
 
 type ConfigItems []ConfigItem
+
+type ConfigItemForProcess struct {
+	ConfigItem
+	HostPath      string            `json:"hostPath"`
+	ContainerPath string            `json:"containerPath"`
+	Meta          map[string]string `json:"meta"`
+	AddFields     map[string]string `json:"addFields"`
+}

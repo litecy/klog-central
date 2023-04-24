@@ -17,16 +17,13 @@ limitations under the License.
 package controllers
 
 import (
-	"bytes"
 	"context"
-	"github.com/Masterminds/sprig/v3"
+	"errors"
 	"github.com/go-logr/logr"
-	"github.com/litecy/klog-central/pkg/entity"
 	"github.com/litecy/klog-central/pkg/filter"
-	"html/template"
+	"github.com/litecy/klog-central/pkg/processor"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"os"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -36,10 +33,9 @@ import (
 // LogCollectReconciler reconciles a LogCollect object
 type LogCollectReconciler struct {
 	client.Client
-	Log              logr.Logger
-	Scheme           *runtime.Scheme
-	ConfTemplate     *template.Template
-	ConfTemplateFile string
+	Log       logr.Logger
+	Scheme    *runtime.Scheme
+	Processor *processor.KConfig
 }
 
 //+kubebuilder:rbac:groups=klog.vibly.vip,resources=logcollects,verbs=get;list;watch;create;update;patch;delete
@@ -74,52 +70,28 @@ func (r *LogCollectReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, nil
 	}
 
-	// TODO(user): your logic here
-
-	var cfgData string
-	cfgData, err = r.genConf(ctx, kcfg)
+	err = r.Processor.Process(ctx, kcfg, &pod)
 	if err != nil {
+		logger.Info("handle pod with logs change failed", "pod", req.NamespacedName, "annotations", pod.ObjectMeta.Annotations, "kcfg", kcfg, "err", err)
 		return reconcile.Result{
 			Requeue: true,
 		}, err
 	}
 
-	logger.Info("handle pod with logs change", "pod", req.NamespacedName, "annotations", pod.ObjectMeta.Annotations, "kcfg", kcfg, "cfg", cfgData)
-	// write to file
-
 	return ctrl.Result{}, nil
-}
-
-func (r *LogCollectReconciler) genConf(ctx context.Context, items *entity.ConfigItems) (content string, err error) {
-	var buf bytes.Buffer
-	data := map[string]any{
-		"configList": items,
-
-		"containerId": "1234567890",
-		// "configList":  configList,
-		"container": map[string]any{},
-		"output":    "",
-	}
-
-	if err = r.ConfTemplate.Execute(&buf, data); err != nil {
-		return "", err
-	}
-	return buf.String(), nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *LogCollectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
-	data, err := os.ReadFile(r.ConfTemplateFile)
-	if err != nil {
-		return err
-	}
-	tpl, err := template.New("").Funcs(sprig.FuncMap()).Parse(string(data))
-	if err != nil {
-		return err
+	if r.Processor == nil {
+		return errors.New("kconfig is nil, please setup kconfig first")
 	}
 
-	r.ConfTemplate = tpl
+	err := r.Processor.Setup()
+	if err != nil {
+		return err
+	}
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1.Pod{}).

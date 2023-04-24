@@ -18,6 +18,7 @@ package main
 
 import (
 	"flag"
+	"github.com/litecy/klog-central/pkg/processor"
 	"os"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -51,6 +52,8 @@ func main() {
 	var enableLeaderElection bool
 	var probeAddr string
 	var logTemplate string
+	var logHost string
+	var devMode bool
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -58,6 +61,8 @@ func main() {
 			"Enabling this will ensure there is only one active controller manager.")
 
 	flag.StringVar(&logTemplate, "log-template", "/etc/klog-central/config.tpl", "log template to use or to override the default")
+	flag.StringVar(&logHost, "log-host", "/host", "for log mount from host")
+	flag.BoolVar(&devMode, "dev-mode", false, "dev mode, will not use log template, and will not mount log from host")
 
 	opts := zap.Options{
 		Development: true,
@@ -91,11 +96,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	var cProvider processor.ConfigProvider
+
+	if devMode {
+		cProvider = &processor.DevNullConfigProvider{}
+	} else {
+		cProvider = &processor.FileBeatConfigProvider{}
+	}
+
 	if err = (&controllers.LogCollectReconciler{
-		Client:           mgr.GetClient(),
-		Log:              ctrl.Log.WithName("controllers").WithName("klog"),
-		Scheme:           mgr.GetScheme(),
-		ConfTemplateFile: logTemplate,
+		Client:    mgr.GetClient(),
+		Log:       ctrl.Log.WithName("controllers").WithName("klog"),
+		Scheme:    mgr.GetScheme(),
+		Processor: processor.NewKConfig(logHost, logTemplate, cProvider),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "LogCollect")
 		os.Exit(1)

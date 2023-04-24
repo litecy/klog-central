@@ -113,7 +113,7 @@ build: generate fmt vet ## Build manager binary.
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./main.go --log-template=./assets/filebeat.tpl
+	go run ./main.go --log-template=./assets/filebeat.tpl --log-host=./fake-host
 
 # If you wish built the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64 ). However, you must enable docker buildKit for it.

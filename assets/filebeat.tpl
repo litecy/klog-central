@@ -1,9 +1,9 @@
 # first version of filebeat tpl
-{{range .configList}}
+{{range .}}
 - type: log
   enabled: true
   paths:
-      - {{ .HostDir }}/{{ .File }}
+      - {{ .HostPath }}{{ .ContainerPath }}
   scan_frequency: 10s
   fields_under_root: true
 
@@ -13,18 +13,12 @@
   json.overwrite_keys: true
   {{end}}
   fields:
-      {{range $key, $value := .CustomFields}}
+      {{range $key, $value := .Meta}}
       {{ $key }}: {{ $value }}
       {{end}}
-      {{range $key, $value := .Tags}}
+      {{range $key, $value := .AddFields}}
       {{ $key }}: {{ $value }}
       {{end}}
-      {{range $key, $value := $.container}}
-      {{ $key }}: {{ $value }}
-      {{end}}
-  {{range $key, $value := .CustomConfigs}}
-  {{ $key }}: {{ $value }}
-  {{end}}
   processors:
     - drop_fields:
         fields: ["log"]

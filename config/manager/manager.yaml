@@ -73,6 +73,8 @@ spec:
             mountPath: /host
           - name: log
             mountPath: /var/log/filebeat
+          - name: filebeat-conf
+            mountPath: /etc/filebeat/prospectors.d
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -91,6 +93,11 @@ spec:
         - --leader-elect
         image: controller:latest
         name: manager
+        volumeMounts:
+          - name: host
+            mountPath: /host
+          - name: filebeat-conf
+            mountPath: /etc/filebeat/prospectors.d
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -124,4 +131,14 @@ spec:
           hostPath:
             path: /
         - name: log
+          emptyDir: {}
+        - hostPath:
+            path: /var/lib/filebeat
+            type: DirectoryOrCreate
+          name: filebeat-lib
+        - hostPath:
+            path: /var/log/filebeat
+            type: DirectoryOrCreate
+          name: filebeat-log
+        - name: filebeat-conf
           emptyDir: {}
