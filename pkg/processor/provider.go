@@ -14,7 +14,7 @@ var _ ConfigProvider = &FileBeatConfigProvider{}
 type FileBeatConfigProvider struct {
 }
 
-const FilebeatConfPath = "/etc/filebeat/prospectors.d"
+const FilebeatConfPath = "/usr/share/filebeat/prospectors.d"
 
 func (*FileBeatConfigProvider) GetConfPath(pod *v1.Pod) string {
 	return filepath.Join(FilebeatConfPath, string(pod.UID)+".yml")

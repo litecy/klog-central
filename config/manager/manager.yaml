@@ -12,7 +12,7 @@ metadata:
   name: system
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
   name: controller-manager
   namespace: system
@@ -28,7 +28,6 @@ spec:
   selector:
     matchLabels:
       control-plane: controller-manager
-  replicas: 1
   template:
     metadata:
       annotations:
@@ -57,9 +56,10 @@ spec:
       #             values:
       #               - linux
       securityContext:
-        runAsUser: 65532
-        runAsGroup: 65532
-        runAsNonRoot: true
+        fsGroup: 0
+        runAsUser: 0
+        runAsGroup: 0
+        runAsNonRoot: false
         # TODO(user): For common cases that do not require escalating privileges
         # it is recommended to ensure that all your Pods/Containers are restrictive.
         # More info: https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted
@@ -70,13 +70,19 @@ spec:
       containers:
       - image: elastic/filebeat:8.2.0
         name: filebeat
+        command: ["sh", "-c", "sleep 84000s"]
         volumeMounts:
           - name: host
             mountPath: /host
           - name: log
-            mountPath: /var/log/filebeat
+            mountPath: /usr/share/filebeat/logs
           - name: filebeat-conf
-            mountPath: /etc/filebeat/prospectors.d
+            mountPath: /usr/share/filebeat/prospectors.d
+          - name: filebeat-data
+            mountPath: /usr/share/filebeat/data
+          - name: filebeat-config
+            mountPath: /usr/share/filebeat/filebeat.yml
+            subPath: filebeat.yml
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -99,7 +105,7 @@ spec:
           - name: host
             mountPath: /host
           - name: filebeat-conf
-            mountPath: /etc/filebeat/prospectors.d
+            mountPath: /usr/share/filebeat/prospectors.d
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -135,12 +141,15 @@ spec:
         - name: log
           emptyDir: {}
         - hostPath:
-            path: /var/lib/filebeat
+            path: /usr/share/filebeat/data
             type: DirectoryOrCreate
-          name: filebeat-lib
+          name: filebeat-data
         - hostPath:
-            path: /var/log/filebeat
+            path: /usr/share/filebeat/logs
             type: DirectoryOrCreate
           name: filebeat-log
         - name: filebeat-conf
           emptyDir: {}
+        - name: filebeat-config
+          configMap:
+            name: filebeat-config
