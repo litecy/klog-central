@@ -1,0 +1,26 @@
+filebeat.config:
+  inputs:
+    enabled: true
+    path: ${path.config}/prospectors.d/*.yml
+    reload.enabled: true
+    reload.period: 10s
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+processors:
+ # - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - drop_fields:
+      fields: [ "host","agent", "ecs", "input.type", "log.offset", "version" ]
+
+output.kafka:
+  hosts: ["kafka.t.cnbuyu.com:9092"]
+  # fixed topic
+  topic: 'kuber.devops.clusterlog'
+
+#output.elasticsearch:
+#  hosts: '${ELASTICSEARCH_HOSTS:elasticsearch:9200}'
+#  username: '${ELASTICSEARCH_USERNAME:}'
+#  password: '${ELASTICSEARCH_PASSWORD:}'

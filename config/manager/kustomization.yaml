@@ -5,4 +5,12 @@ kind: Kustomization
 images:
 - name: controller
   newName: registry.cn-hangzhou.aliyuncs.com/mtu-pub/klog-central
-  newTag: v0.0.3
+  newTag: v0.0.8
+
+configMapGenerator:
+- files:
+  - filebeat.yml
+  name: filebeat-config
+- files:
+  - filebeat.tpl
+  name: filebeat-tpl

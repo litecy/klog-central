@@ -63,10 +63,9 @@ func (c *KConfig) Process(ctx context.Context, items *entity.ConfigItems, pod *v
 
 		itemProcesses = append(itemProcesses, itemProcess)
 
-		util.PutIfNotEmpty(itemProcess.Meta, "k8s_pod", pod.Name)
-		util.PutIfNotEmpty(itemProcess.Meta, "k8s_namespace", pod.Namespace)
-		util.PutIfNotEmpty(itemProcess.Meta, "k8s_node_name", "")
-		util.PutIfNotEmpty(itemProcess.Meta, "k8s_node", pod.Spec.NodeName)
+		util.PutIfNotEmpty(itemProcess.Meta, "k8s.pod", pod.Name)
+		util.PutIfNotEmpty(itemProcess.Meta, "k8s.namespace", pod.Namespace)
+		util.PutIfNotEmpty(itemProcess.Meta, "k8s.node", pod.Spec.NodeName)
 
 		util.PutIfNotEmpty(itemProcess.AddFields, "service", itemProcess.Name)
 	}

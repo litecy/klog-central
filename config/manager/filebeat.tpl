@@ -70,7 +70,7 @@
         ignore_missing: true
         fail_on_error: false
     - drop_fields:
-        fields: ["input", "host", "ecs","agent"]
+        fields: ["input", "host", "ecs","agent", "host.name"]
         ignore_missing: true
   tail_files: false
   close_inactive: 2m

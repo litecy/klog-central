@@ -36,6 +36,7 @@ type LogCollectReconciler struct {
 	Log       logr.Logger
 	Scheme    *runtime.Scheme
 	Processor *processor.KConfig
+	NodeName  string
 }
 
 //+kubebuilder:rbac:groups=klog.vibly.vip,resources=logcollects,verbs=get;list;watch;create;update;patch;delete
@@ -57,6 +58,11 @@ func (r *LogCollectReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	var pod v1.Pod
 	if err := r.Get(ctx, req.NamespacedName, &pod); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	if r.NodeName != "*" &&
+		r.NodeName != pod.Spec.NodeName {
+		return ctrl.Result{}, nil
 	}
 
 	kcfg, err := filter.CheckKLCConfig(ctx, pod)

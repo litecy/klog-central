@@ -21,11 +21,6 @@ spec:
           image: litecy/klog-central-sample:v0.0.1
           command: [ "/bin/sample" ]
           args: [ "--log=/app/logs/main.log" ]
-          env:
-            - name: DEVOPS.LOGPILOT.IO-LOGS_CONFIG.0
-              value: '{"format":"containerd","type":"file","path":"stdout","name":"app.stdout"}'
-            - name: DEVOPS.LOGPILOT.IO-LOGS_CONFIG.1
-              value: '{"format":"json","type":"file","path":"/app/logs/*.log","name":"app.log"}'
           volumeMounts:
             - name: log-dir
               mountPath: /app/logs

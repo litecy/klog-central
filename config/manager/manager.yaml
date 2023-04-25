@@ -70,7 +70,7 @@ spec:
       containers:
       - image: elastic/filebeat:8.2.0
         name: filebeat
-        command: ["sh", "-c", "sleep 84000s"]
+        # command: ["sh", "-c", "sleep 84001s"]
         volumeMounts:
           - name: host
             mountPath: /host
@@ -96,16 +96,27 @@ spec:
             cpu: 10m
             memory: 64Mi
       - command:
+        #  - "sh"
+        #  - "-c"
+        #  - "sleep 84001s"
         - /manager
-        args:
-        - --leader-elect
+        #args:
+        # - --leader-elect
         image: controller:latest
         name: manager
+        env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
         volumeMounts:
           - name: host
             mountPath: /host
           - name: filebeat-conf
             mountPath: /usr/share/filebeat/prospectors.d
+          - name: filebeat-tpl
+            mountPath: /etc/klog-central/config.tpl
+            subPath: filebeat.tpl
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -153,3 +164,6 @@ spec:
         - name: filebeat-config
           configMap:
             name: filebeat-config
+        - name: filebeat-tpl
+          configMap:
+            name: filebeat-tpl

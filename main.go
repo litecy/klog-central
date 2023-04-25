@@ -104,11 +104,21 @@ func main() {
 		cProvider = &processor.FileBeatConfigProvider{}
 	}
 
+	nodeName := "*"
+	if !devMode {
+		nodeName = os.Getenv("NODE_NAME")
+		if nodeName == "" {
+			setupLog.Error(err, "NODE_NAME is not set")
+			os.Exit(1)
+		}
+	}
+
 	if err = (&controllers.LogCollectReconciler{
 		Client:    mgr.GetClient(),
 		Log:       ctrl.Log.WithName("controllers").WithName("klog"),
 		Scheme:    mgr.GetScheme(),
 		Processor: processor.NewKConfig(logHost, logTemplate, cProvider),
+		NodeName:  nodeName,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "LogCollect")
 		os.Exit(1)

@@ -87,7 +87,7 @@ func (f *File) GetPattern(pod *v1.Pod, item *entity.ConfigItemForProcess) error 
 
 	item.ContainerPath = logPath
 
-	util.PutIfNotEmpty(item.Meta, "k8s_container_name", c.Name)
+	util.PutIfNotEmpty(item.Meta, "k8s.container.name", c.Name)
 
 	// /var/lib/kubelet/pods/fec63131-cd3a-402d-9f7a-d036b9d368ed/volumes/kubernetes.io~empty-dir/log-dir
 	return nil
