@@ -72,7 +72,7 @@ func (f *File) GetPattern(pod *v1.Pod, item *entity.ConfigItemForProcess) error 
 			continue
 		}
 
-		if strings.HasSuffix(relPath, "..") || strings.HasPrefix(relPath, ".") {
+		if strings.HasSuffix(r, "..") || strings.HasPrefix(r, ".") {
 			// not under mount path
 			continue
 		}
