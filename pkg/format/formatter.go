@@ -47,4 +47,5 @@ func init() {
 	RegisterFormatter("apache_error", defaultConverter([]string{}))
 	RegisterFormatter("nginx", defaultConverter([]string{}))
 	RegisterFormatter("containerd", defaultConverter([]string{}))
+	RegisterFormatter("containerd_json", defaultConverter([]string{}))
 }
