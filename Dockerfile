@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM golang:1.23.0 as builder
+FROM golang:1.23.6-alpine as builder
 # for users in China
 ENV GOPROXY https://goproxy.cn,direct
 ARG TARGETOS
@@ -29,7 +29,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o ma
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM alpine
+FROM alpine:3.17.2
 WORKDIR /
 COPY --from=builder /workspace/manager .
 # COPY assets/filebeat.tpl /etc/klog-central/config.tpl
