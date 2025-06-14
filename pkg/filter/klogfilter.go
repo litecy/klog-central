@@ -4,18 +4,21 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"github.com/litecy/klog-central/pkg/entity"
-	v1 "k8s.io/api/core/v1"
-	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/litecy/klog-central/pkg/entity"
+	v1 "k8s.io/api/core/v1"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 const (
 	AnnotationKLogCentralLogConfigKey = "klc.klog.vibly.vip/logs-config."
 
 	AnnotationKLogCentralLogConfigKeyData = "klc.klog.vibly.vip/logs-config-data."
+
+	AnnotationKLogCentralLogMetaPrefixKey = "klc.klog.vibly.vip/logs-meta-prefix"
 )
 
 type AnnoKey struct {
@@ -38,6 +41,9 @@ func parseAnnoKeySection(key string) *AnnoKey {
 		prefix = AnnotationKLogCentralLogConfigKey
 	} else if strings.HasPrefix(key, AnnotationKLogCentralLogConfigKeyData) {
 		prefix = AnnotationKLogCentralLogConfigKeyData
+	} else if strings.EqualFold(key, AnnotationKLogCentralLogMetaPrefixKey) {
+		prefix = ""
+		return annoKey
 	} else {
 		return nil
 	}
@@ -67,6 +73,16 @@ func CheckKLCConfig(ctx context.Context, pod v1.Pod) (*entity.ConfigItems, error
 		}
 	}
 
+	metaPrefix := ""
+
+	for _, k := range keys {
+		if k.Key == AnnotationKLogCentralLogMetaPrefixKey {
+			// 处理meta
+			metaPrefix = pod.Annotations[k.Key]
+			break
+		}
+	}
+
 	sort.Slice(keys, func(i, j int) bool {
 		if keys[i].Index == keys[j].Index {
 			return strings.Compare(keys[i].Container, keys[j].Container) < 0
@@ -76,6 +92,10 @@ func CheckKLCConfig(ctx context.Context, pod v1.Pod) (*entity.ConfigItems, error
 
 	for _, k := range keys {
 		// get config from annotation
+		if k.Prefix == "" {
+			// meta
+			continue
+		}
 
 		data := pod.Annotations[k.Key]
 
@@ -97,6 +117,8 @@ func CheckKLCConfig(ctx context.Context, pod v1.Pod) (*entity.ConfigItems, error
 			// continue
 			return nil, errUn
 		}
+
+		item.Name = metaPrefix + item.Name
 
 		item.Container = k.Container
 

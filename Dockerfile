@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM golang:1.19 as builder
+FROM golang:1.23.0 as builder
 # for users in China
 ENV GOPROXY https://goproxy.cn,direct
 ARG TARGETOS
